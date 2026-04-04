@@ -80,7 +80,21 @@ Confirm Claude Code is operating inside the correct repository directory before 
 
 ---
 
-### Step 6 — Run the Repository Architect Prompt
+### Step 6 — Run the Entry Protocol
+
+In the Claude Code session, say:
+
+> "Run the entry protocol"
+
+This invokes `.claude/skills/entry-protocol.md` — a nine-phase read-only scan that reads CLAUDE.md, checks bootstrap status, validates structure, inventories source and test files, reviews documentation, identifies unfilled placeholders, builds a session summary, and proposes prioritized work items.
+
+**Do not modify any files during this step.** The entry protocol is read-only. It ensures Claude Code has full context before any documentation or implementation work begins.
+
+The step is complete when Claude confirms: *"Entry protocol complete. Await user instruction."*
+
+---
+
+### Step 7 — Run the Repository Architect Prompt
 
 Open and paste the following prompt into the Claude Code session:
 
@@ -100,7 +114,7 @@ This session covers:
 
 ---
 
-### Step 7 — Run the Implementation Roadmap Prompt
+### Step 8 — Run the Implementation Roadmap Prompt
 
 Open and paste the following prompt into a new Claude Code session:
 
@@ -120,7 +134,7 @@ This session covers:
 
 ---
 
-### Step 8 — Run the Pre-Implementation Validation Prompt
+### Step 9 — Run the Pre-Implementation Validation Prompt
 
 Open and paste the following prompt into a new Claude Code session:
 
@@ -148,11 +162,11 @@ The session ends when Claude reports: *"Repository is cleared for implementation
 
 ---
 
-### Step 9 — Begin Project-Specific Implementation
+### Step 10 — Begin Project-Specific Implementation
 
-Only after Step 8 produces a clean pass may implementation begin. Open a new Claude Code session and follow `docs/implementation-plan.md` starting from Phase 0.
+Only after Step 9 produces a clean pass may implementation begin. Open a new Claude Code session and follow `docs/implementation-plan.md` starting from Phase 0.
 
-Implementation sessions are project-specific. The process above (Steps 1–8) is complete and does not repeat.
+Implementation sessions are project-specific. The process above (Steps 1–9) is complete and does not repeat.
 
 ---
 
@@ -165,10 +179,11 @@ Implementation sessions are project-specific. The process above (Steps 1–8) is
 | 3 | `bash scripts/bootstrap.sh` | Script exits cleanly |
 | 4 | `bash scripts/validate-structure.sh --strict` | Exit code 0 — required before Claude |
 | 5 | Open Claude Code | Validator passed |
-| 6 | Run `repository-architect.md` prompt | Docs drafted and approved |
-| 7 | Run `implementation-roadmap.md` prompt | `docs/implementation-plan.md` written |
-| 8 | Run `pre-implementation-validation.md` prompt | All 7 checks PASS |
-| 9 | Begin implementation | Phase 0 of implementation plan |
+| 6 | Run entry protocol (`.claude/skills/entry-protocol.md`) | Read-only scan complete |
+| 7 | Run `repository-architect.md` prompt | Docs drafted and approved |
+| 8 | Run `implementation-roadmap.md` prompt | `docs/implementation-plan.md` written |
+| 9 | Run `pre-implementation-validation.md` prompt | All 7 checks PASS |
+| 10 | Begin implementation | Phase 0 of implementation plan |
 
 ---
 
@@ -176,9 +191,9 @@ Implementation sessions are project-specific. The process above (Steps 1–8) is
 
 | File | Role |
 |---|---|
-| `prompt-packs/repository-architect.md` | Prompt for Step 6 — inspection and identity setup |
-| `prompt-packs/implementation-roadmap.md` | Prompt for Step 7 — phased roadmap generation |
-| `prompt-packs/pre-implementation-validation.md` | Prompt for Step 8 — final gate check |
+| `prompt-packs/repository-architect.md` | Prompt for Step 7 — inspection and identity setup |
+| `prompt-packs/implementation-roadmap.md` | Prompt for Step 8 — phased roadmap generation |
+| `prompt-packs/pre-implementation-validation.md` | Prompt for Step 9 — final gate check |
 | `repo-factory/one-command-repo-generator.md` | Alternative: single-session condensed init prompt |
 | `repo-factory/repo-generator-sequence.md` | Human workflow guide for the one-command generator |
 | `pipelines/repo-bootstrap.md` | Broader pipeline context and CI configuration notes |
@@ -190,5 +205,5 @@ Implementation sessions are project-specific. The process above (Steps 1–8) is
 ## Notes
 
 - This procedure applies unchanged to all portfolio repositories: `dqn-reconstruction`, `sportschatplus-v2`, `narrvoca`, and any future projects created from `portfolio-base-template`.
-- The one-command repo generator (`repo-factory/one-command-repo-generator.md`) is a condensed alternative to Steps 6–8 for operators who prefer a single session. Bootstrap (Step 3) and structure validation (Step 4) are still required before it.
+- The one-command repo generator (`repo-factory/one-command-repo-generator.md`) is a condensed alternative to Steps 7–9 for operators who prefer a single session. Bootstrap (Step 3) and structure validation (Step 4) are still required before it.
 - This document is the authoritative reference. If a process question arises about how to start a new repo, the answer is here.

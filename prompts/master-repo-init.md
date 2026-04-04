@@ -1,3 +1,13 @@
+# ⚠️ Deprecated
+
+This document is superseded by:
+`portfolio-engineering/docs/repo-initialization-procedure.md`
+
+Do not use this flow for new repositories.
+Retained for reference only.
+
+---
+
 # Master Repository Initialization Prompt
 
 Use this prompt to initialize any new project repository under the portfolio-engineering standard structure.

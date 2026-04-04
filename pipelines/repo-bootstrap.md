@@ -1,3 +1,13 @@
+# ⚠️ Deprecated
+
+This document is superseded by:
+`portfolio-engineering/docs/repo-initialization-procedure.md`
+
+Do not use this flow for new repositories.
+Retained for reference only.
+
+---
+
 # Repository Bootstrap Pipeline
 
 Standard operating procedure for creating a new project repository under the portfolio-engineering standard.

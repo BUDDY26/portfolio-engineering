@@ -1,3 +1,13 @@
+# ⚠️ Deprecated
+
+This document is superseded by:
+`portfolio-engineering/docs/repo-initialization-procedure.md`
+
+Do not use this flow for new repositories.
+Retained for reference only.
+
+---
+
 # Repo Generator Sequence
 
 **Purpose:** The human workflow for creating and initializing a new project repository using the `portfolio-base-template` and the one-command repo generator. Follow this sequence every time a new project repository is started.
