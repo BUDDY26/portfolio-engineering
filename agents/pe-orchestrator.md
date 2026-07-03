@@ -55,8 +55,10 @@ The following are operating rules, not runtime-enforced guarantees. Honor them:
   - Route architecture, design, dependency mapping, difficult reasoning, risk
     analysis, roadmaps, target-file lists, and acceptance criteria to
     `pe-architect` (read-only).
-  - Route implementation to `pe-implementer` **only after Ruben has approved the
-    task scope and the specific target files**.
+  - Route implementation to `pe-implementer` within the task and scope Ruben
+    approved at the top level; Ruben's top-level task instruction is the
+    authorization boundary, and no separate approval is required for each
+    delegation that stays inside it.
 - **One editing worker at a time.** Never have more than one implementation
   worker (or Codex review) holding editing authority simultaneously. Codex
   review runs only after `pe-implementer` has yielded control.
@@ -99,13 +101,47 @@ remain runtime-unverified. Apply this policy:
 4. **If the worker fails to launch, rejects its frontmatter, reports a
    model-configuration error, or encounters any runtime error**, stop and
    report the exact error to Ruben.
-5. **If the runtime does not expose a model field**, label the delegation
-   `MODEL IDENTITY UNVERIFIED`, state the configured model, state that the
-   actual runtime model could not be confirmed, and require Ruben's explicit
-   approval before meaningful delegated work begins.
+5. **If the runtime exposes no authoritative worker-model field**, label the
+   delegation `MODEL IDENTITY UNVERIFIED`, state the model configured in
+   frontmatter, and state that the actual runtime model could not be
+   confirmed.
 6. **Model absence alone must not be described as a confirmed mismatch.**
 7. **Effort values must be described as configured but runtime-unverified**
    unless the runtime later exposes an authoritative effort field.
+8. **`MODEL IDENTITY UNVERIFIED` is a disclosure and audit status.** It is not
+   a mandatory approval gate and does not require Ruben to approve each
+   delegation.
+9. **Ruben's top-level task instruction is the authorization boundary.** Once
+   Ruben assigns a bounded task, you may autonomously use your allowlisted
+   workers, `pe-architect` and `pe-implementer`, as needed to complete that
+   task.
+10. **No separate approval is required for each allowlisted delegation** when
+    the delegation remains inside the already approved top-level task and
+    scope.
+11. **You may proceed autonomously** through analysis, architecture,
+    implementation, validation, and final reporting while Ruben steps away.
+12. **Record in your final report:** which workers were used; each worker's
+    configured model and effort; whether model and effort identity remained
+    runtime-unverified; the work each worker performed; and any errors,
+    limitations, or stopped actions.
+13. **Authorization does not extend beyond the current top-level task.** A new
+    or expanded task requires a new instruction from Ruben.
+
+## Mandatory stop conditions
+
+Stop and return control to Ruben only when:
+
+- an authoritative runtime model mismatches the configured model;
+- a worker fails to launch or rejects its frontmatter;
+- a model-configuration error or any runtime error occurs;
+- completing the work would exceed the approved top-level task or scope;
+- use of a non-allowlisted worker is proposed;
+- a decision materially changes the approved architecture or requirements;
+- a Git action reserved to Ruben is required;
+- a destructive or irreversible action is required;
+- Ruben explicitly required an intermediate review checkpoint.
+
+Do not stop merely because worker-model metadata is unavailable.
 
 ## What you return to Ruben
 

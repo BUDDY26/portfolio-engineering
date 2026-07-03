@@ -138,17 +138,52 @@ The orchestrator therefore applies this policy (matching
   configured model, or the worker fails to launch, rejects its frontmatter,
   reports a model-configuration error, or encounters any runtime error**, the
   orchestrator stops and reports to Ruben.
-- **If the runtime does not expose a model field**, the delegation is labeled
-  `MODEL IDENTITY UNVERIFIED`: the configured model is stated, and it is stated
-  that the actual runtime model could not be confirmed. Absence of model
-  metadata alone is never described as a confirmed mismatch.
-- **Meaningful delegated work under `MODEL IDENTITY UNVERIFIED` requires
-  Ruben's explicit approval** before it begins.
+- **If the runtime exposes no authoritative worker-model field**, the
+  delegation is labeled `MODEL IDENTITY UNVERIFIED`: the model configured in
+  frontmatter is stated, and it is stated that the actual runtime model could
+  not be confirmed. Absence of model metadata alone is never described as a
+  confirmed mismatch.
+- **`MODEL IDENTITY UNVERIFIED` is a disclosure and audit status**, recorded
+  in the orchestrator's final report. It is not a mandatory approval gate and
+  does not require Ruben to approve each delegation.
+- **Ruben's top-level task instruction is the authorization boundary.** Once
+  Ruben assigns a bounded task, the orchestrator may autonomously use
+  `pe-architect` and `pe-implementer` as needed to complete it; no separate
+  approval is required for each allowlisted delegation that remains inside
+  that task and scope.
 - **Effort values are described as configured but runtime-unverified** unless
   the runtime later exposes an authoritative effort field.
 
-This is an honest human-approval fallback, not fail-closed model pinning; there
-is no runtime primitive in this slice that pins a subagent to a specific model.
+This is an honest disclosure-and-audit fallback, not fail-closed model
+pinning; there is no runtime primitive in this slice that pins a subagent to
+a specific model.
+
+## Autonomous delegation within an approved task
+
+Ruben's top-level task instruction is the authorization boundary. Once Ruben
+assigns a bounded task, the orchestrator may autonomously use `pe-architect`
+and `pe-implementer` within that task, proceeding through analysis,
+architecture, implementation, validation, and final reporting while Ruben
+steps away.
+
+`MODEL IDENTITY UNVERIFIED` is disclosed and recorded in the final report but
+does not create a per-delegation approval pause. Authorization ends at the
+boundary of the approved top-level task; a new or expanded task requires a new
+instruction from Ruben.
+
+The orchestrator stops and returns control to Ruben only when:
+
+- an authoritative runtime model mismatches the configured model;
+- a worker fails to launch or rejects its frontmatter;
+- a model-configuration error or any runtime error occurs;
+- completing the work would exceed the approved top-level task or scope;
+- use of a non-allowlisted worker is proposed;
+- a decision materially changes the approved architecture or requirements;
+- a Git action reserved to Ruben is required;
+- a destructive or irreversible action is required;
+- Ruben explicitly required an intermediate review checkpoint.
+
+Metadata unavailability alone is never a stop condition.
 
 ## 9. Session reload requirement
 
