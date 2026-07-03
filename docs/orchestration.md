@@ -122,7 +122,7 @@ Sonnet) are **not interchangeable** — a silent fallback could run architecture
 reasoning or implementation on the wrong model.
 
 The model and effort values for the three roles are **configured in agent
-frontmatter** (`pe-orchestrator`: model `fable`, effort `high`;
+frontmatter** (`pe-orchestrator`: model `fable`, effort `medium`;
 `pe-architect`: model `opus`, effort `xhigh`; `pe-implementer`: model
 `sonnet`, effort `high`). These values were accepted syntactically because the
 agent definitions loaded. However, during verified delegated runs the installed
@@ -151,8 +151,18 @@ The orchestrator therefore applies this policy (matching
   `pe-architect` and `pe-implementer` as needed to complete it; no separate
   approval is required for each allowlisted delegation that remains inside
   that task and scope.
-- **Effort values are described as configured but runtime-unverified** unless
-  the runtime later exposes an authoritative effort field.
+- **Effort handling (verified against Claude Code 2.1.199 by static
+  inspection):** frontmatter `effort` is parsed and applied by the runtime
+  (mapped to the API's `output_config.effort`), but applied worker effort is
+  still not observable in delegated-run metadata, and the orchestrator cannot
+  invoke any mechanism to change its own session effort. The orchestrator's
+  configured baseline is `medium`; when an objective trigger fires, it
+  escalates the reasoning path — routing difficult reasoning to `pe-architect`
+  (configured `xhigh`) and applying additional verification — without any
+  claim that its own sampling effort changed. The authoritative trigger list,
+  escalation actions, stop-condition precedence, de-escalation rule, and
+  disclosure duties are defined only in `agents/pe-orchestrator.md`; this
+  document deliberately does not duplicate them.
 
 This is an honest disclosure-and-audit fallback, not fail-closed model
 pinning; there is no runtime primitive in this slice that pins a subagent to
@@ -184,6 +194,13 @@ The orchestrator stops and returns control to Ruben only when:
 - Ruben explicitly required an intermediate review checkpoint.
 
 Metadata unavailability alone is never a stop condition.
+
+Reasoning escalation is part of this autonomy: when an objective trigger
+defined in `agents/pe-orchestrator.md` fires, the orchestrator escalates the
+reasoning path within the approved task — routing difficult reasoning to
+`pe-architect` and applying additional verification — without pausing for
+per-escalation approval. Mandatory stop conditions take precedence; escalation
+never replaces a required stop.
 
 ## 9. Session reload requirement
 
@@ -227,8 +244,13 @@ This slice deliberately excludes:
   and confirm runtime copies match canonical (e.g. SHA-256 comparison).
 - **Optional Codex integration** beyond manual invocation (e.g. an MCP bridge),
   only after it is verified.
-- **Verify whether a future Claude Code runtime exposes or applies worker
-  frontmatter effort values in an observable way.**
+- **Verify whether a future Claude Code runtime exposes applied worker effort
+  in an observable way.** Static inspection of Claude Code 2.1.199 confirmed
+  frontmatter `effort` is parsed, validated (`low`/`medium`/`high`/`xhigh`),
+  and applied. Still unverified: exposure of applied effort in delegated-run
+  metadata, empirical confirmation in a live session, and any
+  orchestrator-invocable mechanism to change its own session effort (none was
+  found in the installed build).
 
 ## 13. Governance compatibility with `portfolio-base-template`
 
