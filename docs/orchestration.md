@@ -117,18 +117,38 @@ Only one editing worker holds authority at a time across this lifecycle.
 
 The Claude Code runtime does **not** guarantee a subagent runs on its intended
 model. A policy-excluded or unavailable subagent model **silently falls back to
-the inherited model** instead of erroring. Consequences:
+the inherited model** instead of erroring, and the roles (Fable / Opus /
+Sonnet) are **not interchangeable** — a silent fallback could run architecture
+reasoning or implementation on the wrong model.
 
-- The roles (Fable / Opus / Sonnet) are **not interchangeable**; a silent
-  fallback could run architecture reasoning or implementation on the wrong model.
-- **Model identity must be confirmed through observable runtime metadata**
-  (the subagent panel, the `/agents` Running tab, transcript metadata) —
-  **not** through a worker's natural-language self-report.
-- **If the intended worker model cannot be confirmed, STOP** and report to Ruben
-  rather than proceeding with delegated work.
+The model and effort values for the three roles are **configured in agent
+frontmatter** (`pe-orchestrator`: model `fable`, effort `high`;
+`pe-architect`: model `opus`, effort `xhigh`; `pe-implementer`: model
+`sonnet`, effort `high`). These values were accepted syntactically because the
+agent definitions loaded. However, during verified delegated runs the installed
+runtime **did not expose worker model or effort metadata**: the runtime
+metadata available to the orchestrator contained only the agent ID, token
+usage, tool-use count, and duration.
 
-This confirmation is a convention in this slice; there is no fail-closed runtime
-primitive that pins a subagent to a specific model.
+The orchestrator therefore applies this policy (matching
+`agents/pe-orchestrator.md`):
+
+- **A worker's natural-language self-report is never evidence** of its model.
+- **If the runtime explicitly exposes a worker model that mismatches the
+  configured model, or the worker fails to launch, rejects its frontmatter,
+  reports a model-configuration error, or encounters any runtime error**, the
+  orchestrator stops and reports to Ruben.
+- **If the runtime does not expose a model field**, the delegation is labeled
+  `MODEL IDENTITY UNVERIFIED`: the configured model is stated, and it is stated
+  that the actual runtime model could not be confirmed. Absence of model
+  metadata alone is never described as a confirmed mismatch.
+- **Meaningful delegated work under `MODEL IDENTITY UNVERIFIED` requires
+  Ruben's explicit approval** before it begins.
+- **Effort values are described as configured but runtime-unverified** unless
+  the runtime later exposes an authoritative effort field.
+
+This is an honest human-approval fallback, not fail-closed model pinning; there
+is no runtime primitive in this slice that pins a subagent to a specific model.
 
 ## 9. Session reload requirement
 
@@ -172,6 +192,8 @@ This slice deliberately excludes:
   and confirm runtime copies match canonical (e.g. SHA-256 comparison).
 - **Optional Codex integration** beyond manual invocation (e.g. an MCP bridge),
   only after it is verified.
+- **Verify whether a future Claude Code runtime exposes or applies worker
+  frontmatter effort values in an observable way.**
 
 ## 13. Governance compatibility with `portfolio-base-template`
 

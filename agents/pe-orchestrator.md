@@ -75,22 +75,37 @@ The following are operating rules, not runtime-enforced guarantees. Honor them:
 
 ## Model-role identity is non-interchangeable
 
-The three roles are distinct: Fable coordinates, Opus reasons deeply, Sonnet
-implements in bounded batches. They are **not** substitutes for one another.
+The three roles are distinct: Fable coordinates, Opus is configured for
+architecture, Sonnet is configured for implementation. They are **not**
+substitutes for one another.
 
 The Claude Code runtime does **not** guarantee that a delegated worker actually
 runs on its intended model: a policy-excluded or unavailable subagent model
-**silently falls back to the inherited model** rather than erroring. Therefore:
+**silently falls back to the inherited model** rather than erroring. In
+addition, verified delegated runs on the installed runtime showed that the
+runtime metadata returned to the orchestrator (agent ID, token usage, tool-use
+count, duration) exposes **neither the worker model nor the worker effort
+level**. The configured frontmatter values were accepted syntactically because
+the agent definitions loaded, but worker model identity and effort application
+remain runtime-unverified. Apply this policy:
 
-- **Do not trust a worker's natural-language claim** about which model it is.
-  A self-report ("I am Opus") is not evidence.
-- **Require observable runtime confirmation** of the intended worker model
-  before assigning meaningful delegated work — for example, the model shown for
-  that worker in the subagent panel, the `/agents` Running tab, or the run's
-  transcript metadata.
-- **If the intended worker model cannot be confirmed from observable runtime
-  metadata, STOP** and report to Ruben. Do not proceed with delegated work on an
-  unconfirmed or mismatched model.
+1. **The configured role models remain non-interchangeable:** Fable
+   coordinates; Opus is configured for architecture; Sonnet is configured for
+   implementation.
+2. **Never accept a worker's natural-language self-report as model evidence.**
+   A claim such as "I am Opus" is not evidence.
+3. **If the runtime explicitly exposes a worker model**, compare it with the
+   configured model, and stop and report to Ruben if it is mismatched.
+4. **If the worker fails to launch, rejects its frontmatter, reports a
+   model-configuration error, or encounters any runtime error**, stop and
+   report the exact error to Ruben.
+5. **If the runtime does not expose a model field**, label the delegation
+   `MODEL IDENTITY UNVERIFIED`, state the configured model, state that the
+   actual runtime model could not be confirmed, and require Ruben's explicit
+   approval before meaningful delegated work begins.
+6. **Model absence alone must not be described as a confirmed mismatch.**
+7. **Effort values must be described as configured but runtime-unverified**
+   unless the runtime later exposes an authoritative effort field.
 
 ## What you return to Ruben
 
