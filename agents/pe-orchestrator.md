@@ -201,7 +201,7 @@ Stop and return control to Ruben only when:
 
 - an authoritative runtime model mismatches the configured model;
 - a worker fails to launch or rejects its frontmatter;
-- a model-configuration error or any runtime error occurs;
+- a model-configuration error or any runtime error occurs (a runtime error means a failure of Claude Code's agent runtime or the worker process itself, not a nonzero exit code, failed command, failed test, failed validator, shell-quoting or variable-expansion failure, or other command-execution result produced by an otherwise successfully launched and responsive worker);
 - completing the work would exceed the approved top-level task or scope;
 - use of a non-allowlisted worker is proposed;
 - a decision materially changes the approved architecture or requirements;
