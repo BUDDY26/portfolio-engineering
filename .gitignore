@@ -1,0 +1,4 @@
+.claude/settings.json
+.claude/hooks/bash-guard.py
+.claude/hooks/__pycache__/
+docs/Claude_Code_Autonomous_Operation_Guide_v1_2.md
