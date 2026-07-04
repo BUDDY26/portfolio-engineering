@@ -207,6 +207,93 @@ report: the trigger that fired; the worker configured at a higher effort or
 additional review action used; the result; and the point at which ordinary
 medium-effort coordination resumed.
 
+## Team composition, concurrency, and reconciliation policy (authoritative)
+
+This section governs how many workers to use, which may run at once, and how
+to resolve their disagreements. It operates under the mandatory stop
+conditions and the reasoning-escalation policy above; where it conflicts with
+them, they take precedence.
+
+**Minimum-team default.** Use the fewest workers that produce the task's
+required output types. A task mapping to one role's output and fitting one
+context uses one worker: evidence → `pe-researcher`; test/validator execution
+→ `pe-tester`; correctness/scope review → `pe-reviewer`; security review →
+`pe-security-reviewer`; design/roadmap → `pe-architect`; approved edits →
+`pe-implementer`.
+
+**When multiple workers are justified.** Add workers only when the task spans
+distinct output types (plan, build, verify, judge), or independent
+verification is required, or separation of duties applies. A worker never
+reviews its own output; independence means a different role or a different
+instance.
+
+**Same-role multi-instance.** Justified only when work partitions into
+disjoint, independently mergeable sub-scopes (distinct subsystems;
+non-overlapping file groups of a large diff), each fitting one context, where
+the partition's time/context saving exceeds the added reconciliation cost.
+Not justified on a shared file set. For mutation-capable instances,
+sub-scopes must additionally satisfy the concurrent-editor conditions below.
+Runtime acceptance of parallel same-role read-only workers is confirmed but
+does not by itself establish value.
+
+**Concurrency and sequencing.**
+
+- Read-only workers (`pe-architect`, `pe-reviewer`, `pe-security-reviewer`,
+  `pe-researcher`) may run concurrently when the artifacts they inspect are
+  frozen and no mutation-capable worker holds an overlapping scope.
+- Mutation ownership is per artifact: **one active editor per artifact.**
+  Overlapping, coupled, or shared-file mutations remain sequential.
+- Concurrent `pe-implementer` instances are permitted within an authorized
+  bounded task only when the orchestrator assigns scopes that are **provably
+  disjoint, exclusive**, independently verifiable, and free of shared write
+  surfaces. Each instance must report out-of-scope findings to the
+  orchestrator rather than crossing its ownership boundary. This routing
+  decision is already authorized within the approved top-level task and
+  requires no new approval from Ruben unless it changes top-level scope,
+  architecture, or another Ruben-reserved boundary.
+- Exception: `pe-tester` may run concurrently with read-only workers when the
+  inspected artifacts are frozen and its commanded operation performs no
+  filesystem or state mutation. Any tester operation that writes, may write,
+  or may alter external state occupies the exclusive mutation slot. This
+  boundary is behaviorally constrained rather than fail-closed at the Bash
+  subcommand level.
+
+**Anti-waste stopping test.** Before adding any worker, require all of:
+(a) it inspects evidence or exercises a path no tasked worker covers; (b) its
+finding class is not already produced by an existing worker's role; (c) its
+result could change the decision or verdict, not merely confirm it; (d) its
+context, latency, and reconciliation cost is less than the decision-relevant
+information expected. If a candidate would only re-derive what another worker
+already reports, do not add it.
+
+**Reconciliation of conflicting outputs.** Classify the conflict:
+
+- Factual (incompatible observable claims such as line numbers or test
+  outcomes): treat the working tree, artifacts, and reproducible command
+  results as ground truth. Resolve through one targeted re-inspection or
+  re-run, performed directly by the orchestrator where its tools permit or
+  delegated to pe-researcher or pe-tester where needed. Add a follow-up
+  worker only when the existing evidence is insufficient.
+- Interpretive (same facts, different conclusions): route one reconciling
+  pass to pe-architect when additional architectural judgment would
+  materially help. Fable resolves routine in-scope disagreements using the
+  approved requirements, architecture, evidence, and conservative risk
+  treatment. Stop and return to Ruben only when resolution would materially
+  change approved requirements or architecture, exceed the authorized
+  scope, or cross another existing mandatory-stop or Ruben-reserved
+  boundary.
+- Severity (same item, different `BLOCKER`/`MAJOR`/`MINOR`): adopt the higher
+  severity provisionally; never average or downgrade. If the higher severity
+  implies a mandatory-stop or Ruben-reserved decision, stop and return to
+  Ruben.
+
+A targeted follow-up worker is used only when additional decision-relevant
+evidence or specialist judgment is necessary to resolve a reproducible
+factual conflict or an in-scope interpretive conflict. Do not add one when
+the existing evidence already resolves the issue, when conservative
+treatment is sufficient, or when the matter is a value or authority
+decision reserved to Ruben.
+
 ## Mandatory stop conditions
 
 Stop and return control to Ruben only when:
